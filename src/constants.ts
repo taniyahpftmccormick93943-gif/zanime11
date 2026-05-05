@@ -1,0 +1,86 @@
+import { Movie } from './types';
+
+export const MOVIES: Movie[] = [
+  {
+    id: '1',
+    title: 'ئینتەرستێلار',
+    originalTitle: 'Interstellar',
+    description: 'کاتێک مرۆڤایەتی لە لێواری لەناوچووندایە، تیمێک لە گەردوونناسەکان دەچنە ناو کونێکی رەش بۆ دۆزینەوەی ماڵێکی نوێ بۆ مرۆڤایەتی.',
+    year: 2014,
+    rating: 8.7,
+    duration: '2h 49m',
+    genres: ['زانستی', 'دراما', 'سەرکێشی'],
+    backdropUrl: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=2072',
+    posterUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=1000',
+    category: 'فیلم',
+    isTrending: true
+  },
+  {
+    id: '2',
+    title: 'شۆڕەسواری تاریکی',
+    originalTitle: 'The Dark Knight',
+    description: 'باکمان ڕووبەڕووی گەورەترین تاقیکردنەوەی دەبێتەوە کاتێک تاوانبارێکی نوێ بەناوی جۆکەر لە گۆتام پەیدا دەبێت.',
+    year: 2008,
+    rating: 9.0,
+    duration: '2h 32m',
+    genres: ['ئاکشن', 'تاوان', 'دراما'],
+    backdropUrl: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=2070',
+    posterUrl: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&q=80&w=1000',
+    category: 'فیلم',
+    isTrending: true
+  },
+  {
+    id: '3',
+    title: 'ئینسێپشن',
+    originalTitle: 'Inception',
+    description: 'دزێک کە نهێنییەکان لە ناو خەونی خەڵکدا دەدزێت، ئەرکێکی مەحاڵی پێدەسپێردرێت بۆ چاندنی بیرۆکەیەک لە مێشکی کەسێکدا.',
+    year: 2010,
+    rating: 8.8,
+    duration: '2h 28m',
+    genres: ['ئاکشن', 'زانستی', 'سەرکێشی'],
+    backdropUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=2070',
+    posterUrl: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=1000',
+    category: 'فیلم'
+  },
+  {
+    id: '4',
+    title: 'جەنگی کۆتایی',
+    originalTitle: 'Avengers: Endgame',
+    description: 'دوای ئەوەی ثانۆس نیوەی گەردوون لەناودەبات، تۆڵەسەندنەوەکان جارێکی تر کۆدەبنەوە بۆ گێڕانەوەی هەموان.',
+    year: 2019,
+    rating: 8.4,
+    duration: '3h 1m',
+    genres: ['ئاکشن', 'سەرکێشی', 'زانستی'],
+    backdropUrl: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?auto=format&fit=crop&q=80&w=2070',
+    posterUrl: 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&q=80&w=1000',
+    category: 'فیلم',
+    isTrending: true
+  },
+  {
+    id: '5',
+    title: 'یاری تەختە پاشایەتییەکان',
+    originalTitle: 'Game of Thrones',
+    description: 'نۆ خێزانی خانەدان جەنگ دەستی پێدەکەن بۆ کۆنترۆڵکردنی خاکی وێسترۆس.',
+    year: 2011,
+    rating: 9.2,
+    duration: '8 Seasons',
+    genres: ['دراما', 'فانتازیا', 'ئاکشن'],
+    backdropUrl: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&q=80&w=2070',
+    posterUrl: 'https://images.unsplash.com/photo-1515233637439-009623e80f4f?auto=format&fit=crop&q=80&w=1000',
+    category: 'زنجیرە',
+    isTrending: true
+  },
+  {
+    id: '6',
+    title: 'هێرشی زەبەلاحەکان',
+    originalTitle: 'Attack on Titan',
+    description: 'مراڤایەتی لە دوای دیوارەکاندا دەژی بۆ خۆپاراستن لە زەبەلاحە مرۆخۆرەکان.',
+    year: 2013,
+    rating: 9.1,
+    duration: '4 Seasons',
+    genres: ['ئەنیمی', 'ئاکشن', 'دراما'],
+    backdropUrl: 'https://images.unsplash.com/photo-1541562232579-512a21360020?auto=format&fit=crop&q=80&w=2070',
+    posterUrl: 'https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?auto=format&fit=crop&q=80&w=1000',
+    category: 'ئەنیمی'
+  }
+];
