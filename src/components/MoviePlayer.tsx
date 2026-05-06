@@ -4,6 +4,8 @@ import { ArrowRight, Play, Star, Eye, BookOpen, Crown, Lock } from 'lucide-react
 import { Movie } from '../types';
 import { MOVIES } from '../constants';
 import { useAuth } from '../lib/AuthContext';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 interface MoviePlayerProps {
   movie: Movie;
@@ -13,7 +15,7 @@ interface MoviePlayerProps {
 export default function MoviePlayer({ movie, onClose }: MoviePlayerProps) {
   const [views, setViews] = useState<number | null>(null);
   const [similarViews, setSimilarViews] = useState<Record<string, number>>({});
-  const { isPro } = useAuth();
+  const { isPro, user } = useAuth();
 
   const getEmbedUrl = (url: string) => {
     if (!url) return '';
@@ -30,6 +32,22 @@ export default function MoviePlayer({ movie, onClose }: MoviePlayerProps) {
 
   useEffect(() => {
     if (movie.isPro && !isPro) return;
+
+    const recordWatchHistory = async () => {
+      if (!user) return;
+      try {
+        await addDoc(collection(db, 'watch_history'), {
+          userId: user.uid,
+          movieId: movie.id,
+          movieTitle: movie.title,
+          originalTitle: movie.originalTitle,
+          posterUrl: movie.posterUrl,
+          watchedAt: serverTimestamp()
+        });
+      } catch (error) {
+        console.error("Error recording watch history:", error);
+      }
+    };
 
     const fetchOrIncrementViews = async () => {
       const storageKey = `viewed_${movie.id}`;
@@ -71,7 +89,8 @@ export default function MoviePlayer({ movie, onClose }: MoviePlayerProps) {
 
     fetchOrIncrementViews();
     fetchSimilarViews();
-  }, [movie.id]);
+    recordWatchHistory();
+  }, [movie.id, user?.uid]);
 
   return (
     <motion.div 

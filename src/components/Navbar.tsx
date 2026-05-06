@@ -1,4 +1,4 @@
-import { Search, Bell, User, Menu, LogOut, LayoutDashboard } from 'lucide-react';
+import { Search, Bell, User, Menu, LogOut, LayoutDashboard, History } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../lib/AuthContext';
@@ -7,9 +7,10 @@ import { signInWithGoogle, logout } from '../lib/firebase';
 interface NavbarProps {
   onOpenDashboard: () => void;
   onOpenProModal: () => void;
+  onOpenProfile: () => void;
 }
 
-export default function Navbar({ onOpenDashboard, onOpenProModal }: NavbarProps) {
+export default function Navbar({ onOpenDashboard, onOpenProModal, onOpenProfile }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const { user, loading, isAdmin, isPro } = useAuth();
@@ -131,6 +132,17 @@ export default function Navbar({ onOpenDashboard, onOpenProModal }: NavbarProps)
                         <LayoutDashboard size={14} />
                       </button>
                     )}
+
+                    <button 
+                      onClick={() => {
+                        onOpenProfile();
+                        setShowUserMenu(false);
+                      }}
+                      className="w-full flex items-center justify-between gap-2 px-4 py-2 text-zinc-300 hover:text-white hover:bg-white/5 rounded-xl transition-all text-xs font-bold"
+                    >
+                      مێژووی بینین
+                      <History size={14} />
+                    </button>
 
                     <button 
                       onClick={() => {

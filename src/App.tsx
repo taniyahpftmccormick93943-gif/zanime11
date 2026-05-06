@@ -12,6 +12,7 @@ import Footer from './components/Footer';
 import AdminDashboard from './components/AdminDashboard';
 import MoviePlayer from './components/MoviePlayer';
 import ProModal from './components/ProModal';
+import ProfileModal from './components/ProfileModal';
 import { MOVIES as STATIC_MOVIES } from './constants';
 import { Movie } from './types';
 import { collection, onSnapshot, query } from 'firebase/firestore';
@@ -22,6 +23,7 @@ export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [showProModal, setShowProModal] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [playingMovie, setPlayingMovie] = useState<Movie | null>(null);
   const [movies, setMovies] = useState<Movie[]>(STATIC_MOVIES);
 
@@ -47,6 +49,14 @@ export default function App() {
     setIsModalOpen(true);
   };
 
+  const handlePlayMovieById = (movieId: string) => {
+    const movie = movies.find(m => m.id === movieId);
+    if (movie) {
+      setPlayingMovie(movie);
+      setShowProfile(false);
+    }
+  };
+
   const handleWatchMovie = (movie: Movie) => {
     setIsModalOpen(false);
     setPlayingMovie(movie);
@@ -60,6 +70,7 @@ export default function App() {
       <Navbar 
         onOpenDashboard={() => setShowDashboard(true)} 
         onOpenProModal={() => setShowProModal(true)}
+        onOpenProfile={() => setShowProfile(true)}
       />
       
       <main className="flex-1 flex flex-col">
@@ -92,6 +103,13 @@ export default function App() {
       <ProModal 
         isOpen={showProModal} 
         onClose={() => setShowProModal(false)} 
+      />
+
+      {/* Profile Modal Overlay */}
+      <ProfileModal
+        isOpen={showProfile}
+        onClose={() => setShowProfile(false)}
+        onPlayMovie={handlePlayMovieById}
       />
 
       {/* Movie Player View */}

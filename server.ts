@@ -1,7 +1,7 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
-import { kv } from "@vercel/kv";
+import { Redis } from "@upstash/redis";
 import dotenv from "dotenv";
 import { initializeApp } from "firebase/app";
 import { 
@@ -17,7 +17,7 @@ import {
   where,
   documentId
 } from "firebase/firestore";
-import firebaseConfig from "./firebase-applet-config.json" assert { type: "json" };
+import firebaseConfig from "./firebase-applet-config.json" with { type: "json" };
 
 dotenv.config();
 
@@ -46,28 +46,31 @@ const kvFallback = {
     return Array.from(kvStore.keys()).filter((k) => regex.test(k));
   },
   pipeline: () => {
-    const commands: any[] = [];
     return {
       get: (key: string) => {
-        commands.push(() => kvFallback.get(key));
-        return this;
+        return { exec: async () => [await kvFallback.get(key)] };
       },
-      exec: async () => {
-        const results = [];
-        for (const cmd of commands) {
-          results.push(await cmd());
-        }
-        return results;
-      }
+      exec: async () => []
     };
   }
 };
 
-const isUpstashConfigured = process.env.KV_REST_API_TOKEN && 
-                           process.env.KV_REST_API_URL && 
-                           process.env.KV_REST_API_URL.startsWith('https');
+const upstashUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
 
-const safeKv = isUpstashConfigured ? kv : kvFallback;
+let redis: Redis | null = null;
+if (upstashUrl && upstashToken) {
+  try {
+    redis = new Redis({
+      url: upstashUrl,
+      token: upstashToken,
+    });
+  } catch (e) {
+    console.error("Failed to initialize Redis:", e);
+  }
+}
+
+const safeKv = redis || kvFallback;
 
 async function startServer() {
   const app = express();

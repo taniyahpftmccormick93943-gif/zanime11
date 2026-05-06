@@ -21,6 +21,19 @@
       },
       "required": ["id", "title", "originalTitle", "category"]
     },
+    "WatchHistory": {
+      "title": "Watch History",
+      "description": "Record of a movie viewed by a user",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "movieId": { "type": "string" },
+        "movieTitle": { "type": "string" },
+        "posterUrl": { "type": "string" },
+        "watchedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "movieId", "watchedAt"]
+    },
     "User": {
       "title": "User Profile",
       "description": "Stored user preferences and subscription status",
@@ -63,6 +76,10 @@
     "/movies/{movieId}": {
       "schema": "Movie",
       "description": "Movie database documents"
+    },
+    "/watch_history/{historyId}": {
+      "schema": "WatchHistory",
+      "description": "User watch history records"
     }
   }
 }
