@@ -65,6 +65,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         setError('تکایە ڕێگە بە پۆپ-ئەپ (Pop-up) بدە لە برۆسەرەکەتدا');
       } else if (err.code === 'auth/cancelled-popup-request') {
         setError('پڕۆسەکە هەڵوەشایەوە');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        setError('ئەم دومەینە ڕێگەی پێنەدراوە لە فایەربەیس. تکایە پاشکۆی Authorized Domains زیاد بکە لە فایەربەیس کۆنسۆڵ.');
       } else {
         setError(`هەڵەیەک لە چوونە ژوورەوەی گووگڵ ڕوویدا: ${err.message || err.code || ''}`);
       }
