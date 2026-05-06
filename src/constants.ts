@@ -13,7 +13,8 @@ export const MOVIES: Movie[] = [
     backdropUrl: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=2072',
     posterUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=1000',
     category: 'فیلم',
-    isTrending: true
+    isTrending: true,
+    videoUrl: 'https://www.youtube.com/watch?v=zSWdZVtXT7E'
   },
   {
     id: '2',
@@ -27,7 +28,8 @@ export const MOVIES: Movie[] = [
     backdropUrl: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=2070',
     posterUrl: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&q=80&w=1000',
     category: 'فیلم',
-    isTrending: true
+    isTrending: true,
+    videoUrl: 'https://www.youtube.com/watch?v=LDG9bisJEaI'
   },
   {
     id: '3',
@@ -40,7 +42,8 @@ export const MOVIES: Movie[] = [
     genres: ['ئاکشن', 'زانستی', 'سەرکێشی'],
     backdropUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=2070',
     posterUrl: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=1000',
-    category: 'فیلم'
+    category: 'فیلم',
+    videoUrl: 'https://www.youtube.com/watch?v=YoHD9XEInc0'
   },
   {
     id: '4',
@@ -54,7 +57,8 @@ export const MOVIES: Movie[] = [
     backdropUrl: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?auto=format&fit=crop&q=80&w=2070',
     posterUrl: 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&q=80&w=1000',
     category: 'فیلم',
-    isTrending: true
+    isTrending: true,
+    videoUrl: 'https://www.youtube.com/watch?v=TcMBFSGVi1c'
   },
   {
     id: '5',
@@ -68,7 +72,8 @@ export const MOVIES: Movie[] = [
     backdropUrl: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&q=80&w=2070',
     posterUrl: 'https://images.unsplash.com/photo-1515233637439-009623e80f4f?auto=format&fit=crop&q=80&w=1000',
     category: 'زنجیرە',
-    isTrending: true
+    isTrending: true,
+    videoUrl: 'https://www.youtube.com/watch?v=rlR4PJn8b8I'
   },
   {
     id: '6',
@@ -81,6 +86,7 @@ export const MOVIES: Movie[] = [
     genres: ['ئەنیمی', 'ئاکشن', 'دراما'],
     backdropUrl: 'https://images.unsplash.com/photo-1541562232579-512a21360020?auto=format&fit=crop&q=80&w=2070',
     posterUrl: 'https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?auto=format&fit=crop&q=80&w=1000',
-    category: 'ئەنیمی'
+    category: 'ئەنیمی',
+    videoUrl: 'https://www.youtube.com/watch?v=MGRm4IzK1SQ'
   }
 ];

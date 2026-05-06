@@ -70,9 +70,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // Real-time listener for the profile
-        unsubscribeProfile = onSnapshot(profileRef, (doc) => {
-          if (doc.exists()) {
-            setProfile(doc.data() as UserProfile);
+        unsubscribeProfile = onSnapshot(profileRef, async (snapshot) => {
+          if (snapshot.exists()) {
+            const data = snapshot.data() as UserProfile;
+            setProfile(data);
+            
+            // Sync name/photo if they were updated in Auth but not in Firestore profile
+            if (currentUser.displayName && data.displayName !== currentUser.displayName) {
+              try {
+                await setDoc(profileRef, { 
+                  displayName: currentUser.displayName,
+                  updatedAt: serverTimestamp() 
+                }, { merge: true });
+              } catch (e) {
+                console.error("Sync error:", e);
+              }
+            }
           }
         }, (err) => {
           handleFirestoreError(err, OperationType.GET, userPath);

@@ -54,12 +54,14 @@ export default function MoviePlayer({ movie, onClose }: MoviePlayerProps) {
       const statsRef = doc(db, 'movie_stats', movie.id);
       
       // Setup real-time listener for views
-      const unsubscribe = onSnapshot(statsRef, (doc) => {
-        if (doc.exists()) {
-          setViews(doc.data().views || 0);
+      const unsubscribe = onSnapshot(statsRef, (snapshot) => {
+        if (snapshot.exists()) {
+          setViews(snapshot.data().views || 0);
         } else {
           setViews(0);
         }
+      }, (err) => {
+        console.warn("View listener error:", err);
       });
 
       // Increment view count if not seen in this session
@@ -68,7 +70,7 @@ export default function MoviePlayer({ movie, onClose }: MoviePlayerProps) {
 
       if (!hasViewedInSession) {
         try {
-          // Check if document exists before updating, or use set with merge
+          // Use setDoc with merge to ensure doc exists
           await setDoc(statsRef, {
             views: increment(1),
             lastViewedAt: serverTimestamp()
@@ -160,7 +162,8 @@ export default function MoviePlayer({ movie, onClose }: MoviePlayerProps) {
                   src={getEmbedUrl(movie.videoUrl)} 
                   className="w-full h-full border-0" 
                   allowFullScreen 
-                  allow="autoplay; encrypted-media"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="no-referrer-when-downgrade"
                 />
               ) : (
                 <>

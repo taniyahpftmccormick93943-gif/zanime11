@@ -49,21 +49,20 @@ export default function LiveCounter({ movieId, className = "" }: LiveCounterProp
     };
 
     // Real-time listener for the count
-    // Note: Counting in logic for real-time vibe
-    // For many users, this query might be expensive. 
-    // In a real app, you'd use a cloud function to aggregate counts.
-    // For this context, we'll listen to the collection.
-    const twoMinutesAgo = new Timestamp(Math.floor(Date.now() / 1000) - 120, 0);
-    const q = query(
-      collection(db, 'active_viewers'), 
-      where('movieId', '==', movieId || 'global'),
-      where('lastSeen', '>=', twoMinutesAgo)
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      // Filter out stale docs (Firestore doesn't have a built-in TTL for snapshots based on sliding window easily without cloud functions)
-      // But firestore query is already filtering by 'lastSeen'.
-      setCount(snapshot.size || 1);
+    // To avoid needing a composite index in production (movieId + lastSeen range),
+    // we listen to the collection and filter active ones in the client.
+    const unsubscribe = onSnapshot(collection(db, 'active_viewers'), (snapshot) => {
+      const targetMovie = movieId || 'global';
+      const twoMinutesAgo = Date.now() - 120000;
+      
+      const activeDocs = snapshot.docs.filter(doc => {
+        const data = doc.data();
+        // Handle serverTimestamp which might be null locally before sync
+        const lastSeen = data.lastSeen ? (typeof data.lastSeen.toMillis === 'function' ? data.lastSeen.toMillis() : Date.now()) : 0;
+        return data.movieId === targetMovie && lastSeen >= twoMinutesAgo;
+      });
+      
+      setCount(activeDocs.length || 1);
     }, (err) => {
       console.warn('Error listening to live count:', err);
     });
