@@ -1,0 +1,68 @@
+{
+  "entities": {
+    "Movie": {
+      "title": "Movie",
+      "description": "Movie document representing a film, series or anime",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "originalTitle": { "type": "string" },
+        "description": { "type": "string" },
+        "year": { "type": "integer" },
+        "rating": { "type": "number" },
+        "duration": { "type": "string" },
+        "genres": { "type": "array", "items": { "type": "string" } },
+        "backdropUrl": { "type": "string" },
+        "posterUrl": { "type": "string" },
+        "category": { "type": "string" },
+        "isTrending": { "type": "boolean" },
+        "videoUrl": { "type": "string" }
+      },
+      "required": ["id", "title", "originalTitle", "category"]
+    },
+    "User": {
+      "title": "User Profile",
+      "description": "Stored user preferences and subscription status",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "isPro": { "type": "boolean" },
+        "isAdmin": { "type": "boolean" },
+        "isBanned": { "type": "boolean" },
+        "proType": { "type": "string", "enum": ["none", "1day", "1month", "3months", "6months", "1year"] },
+        "proExpiry": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "isPro"]
+    },
+    "MovieStats": {
+      "title": "Movie Statistics",
+      "description": "Aggregate statistics for movies like view counts",
+      "type": "object",
+      "properties": {
+        "views": { "type": "integer" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["views"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile documents"
+    },
+    "/movie_stats/{movieId}": {
+      "schema": "MovieStats",
+      "description": "Publicly readable view counts"
+    },
+    "/movies/{movieId}": {
+      "schema": "Movie",
+      "description": "Movie database documents"
+    }
+  }
+}

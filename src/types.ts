@@ -13,6 +13,8 @@ export interface Movie {
   posterUrl: string;
   category: Category;
   isTrending?: boolean;
+  isPro?: boolean;
+  videoUrl?: string;
 }
 
 export interface User {
