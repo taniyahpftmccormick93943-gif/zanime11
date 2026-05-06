@@ -59,9 +59,15 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     try {
       await googleSignIn();
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Google auth error:", err);
-      setError('نەتوانرا لەڕێگەی گووگڵەوە بچیتە ژوورەوە');
+      if (err.code === 'auth/popup-blocked') {
+        setError('تکایە ڕێگە بە پۆپ-ئەپ (Pop-up) بدە لە برۆسەرەکەتدا');
+      } else if (err.code === 'auth/cancelled-popup-request') {
+        setError('پڕۆسەکە هەڵوەشایەوە');
+      } else {
+        setError(`هەڵەیەک لە چوونە ژوورەوەی گووگڵ ڕوویدا: ${err.message || err.code || ''}`);
+      }
     } finally {
       setLoading(false);
     }

@@ -20,13 +20,18 @@ export default function MoviePlayer({ movie, onClose }: MoviePlayerProps) {
 
   const getEmbedUrl = (url: string) => {
     if (!url) return '';
-    // Handle YouTube
-    if (url.includes('youtube.com/watch?v=')) {
-      return url.replace('watch?v=', 'embed/');
-    }
-    if (url.includes('youtu.be/')) {
-      const id = url.split('/').pop();
-      return `https://www.youtube.com/embed/${id}`;
+    try {
+      const urlObj = new URL(url);
+      if (urlObj.hostname.includes('youtube.com')) {
+        const v = urlObj.searchParams.get('v');
+        if (v) return `https://www.youtube.com/embed/${v}`;
+      }
+      if (urlObj.hostname.includes('youtu.be')) {
+        const id = urlObj.pathname.split('/').pop();
+        if (id) return `https://www.youtube.com/embed/${id}`;
+      }
+    } catch (e) {
+      if (url.includes('watch?v=')) return url.replace('watch?v=', 'embed/');
     }
     return url;
   };
