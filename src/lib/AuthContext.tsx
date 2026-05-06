@@ -1,12 +1,15 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, onAuthStateChanged, auth, db } from './firebase';
-import { doc, getDoc, setDoc, serverTimestamp, getDocFromServer } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { handleFirestoreError, OperationType } from './firestoreUtils';
 
 interface UserProfile {
   isPro: boolean;
   isAdmin: boolean;
   uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
 }
 
 interface AuthContextType {
@@ -25,36 +28,30 @@ const AuthContext = createContext<AuthContextType>({
   isPro: false 
 });
 
-// Test connection on boot
-async function testConnection() {
-  try {
-    await getDocFromServer(doc(db, '_connection_test_', 'ping'));
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration.");
-    }
-  }
-}
-testConnection();
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    let unsubscribeProfile: (() => void) | null = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       
+      if (unsubscribeProfile) {
+        unsubscribeProfile();
+        unsubscribeProfile = null;
+      }
+
       if (currentUser) {
         const userPath = `users/${currentUser.uid}`;
+        const profileRef = doc(db, 'users', currentUser.uid);
+
+        // First check if profile exists, if not create it
         try {
-          const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-          
-          if (userDoc.exists()) {
-            setProfile(userDoc.data() as UserProfile);
-          } else {
-            // Create initial profile
+          const snap = await getDoc(profileRef);
+          if (!snap.exists()) {
             const isAdmin = currentUser.email === 'taniyahpftmccormick93943@gmail.com';
             const initialProfile = {
               uid: currentUser.uid,
@@ -66,28 +63,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               createdAt: serverTimestamp(),
               updatedAt: serverTimestamp(),
             };
-            try {
-              await setDoc(doc(db, 'users', currentUser.uid), initialProfile);
-              setProfile({ uid: currentUser.uid, isPro: false, isAdmin: isAdmin });
-            } catch (err) {
-              handleFirestoreError(err, OperationType.WRITE, userPath);
-            }
+            await setDoc(profileRef, initialProfile);
           }
-        } catch (error) {
-          // If it's a permission error, we use the helper
-          if (error instanceof Error && error.message.includes('permission')) {
-             handleFirestoreError(error, OperationType.GET, userPath);
-          } else {
-             console.error("Error fetching user profile:", error);
-          }
+        } catch (err) {
+          console.error("Error checking/creating profile:", err);
         }
+
+        // Real-time listener for the profile
+        unsubscribeProfile = onSnapshot(profileRef, (doc) => {
+          if (doc.exists()) {
+            setProfile(doc.data() as UserProfile);
+          }
+        }, (err) => {
+          handleFirestoreError(err, OperationType.GET, userPath);
+        });
       } else {
         setProfile(null);
       }
       
       setLoading(false);
     });
-    return () => unsubscribe();
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeProfile) unsubscribeProfile();
+    };
   }, []);
 
   const isAdmin = profile?.isAdmin || user?.email === 'taniyahpftmccormick93943@gmail.com';

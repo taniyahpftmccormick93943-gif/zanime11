@@ -42,10 +42,13 @@ service cloud.firestore {
     }
 
     match /movie_stats/{movieId} {
-      // View counts are public
       allow read: if true;
-      // Allow writes to stats - in a real app we'd strictly validate increment, but this fixes the block for now
-      allow write: if true;
+      allow write: if true; // In development we allow public writes to stats docs
+    }
+
+    match /active_viewers/{sessionId} {
+      allow read: if true;
+      allow write: if true; // Sessions are anonymous or identified by ID
     }
 
     match /movies/{movieId} {

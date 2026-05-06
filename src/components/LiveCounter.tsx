@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Users } from 'lucide-react';
 import { motion } from 'motion/react';
+import { collection, doc, setDoc, onSnapshot, query, where, serverTimestamp, Timestamp, deleteDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 interface LiveCounterProps {
   movieId?: string;
@@ -18,40 +20,61 @@ export default function LiveCounter({ movieId, className = "" }: LiveCounterProp
   });
 
   useEffect(() => {
-    const sendHeartbeat = async () => {
+    const presenceDocRef = doc(db, 'active_viewers', sessionId);
+    
+    const updatePresence = async () => {
       try {
-        const res = await fetch('/api/live/heartbeat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionId, movieId }),
+        await setDoc(presenceDocRef, {
+          movieId: movieId || 'global',
+          lastSeen: serverTimestamp(),
         });
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       } catch (err) {
-        console.warn('Live Heartbeat failed', err);
+        console.warn('Error updating presence:', err);
       }
     };
 
-    const fetchCount = async () => {
+    // Initial update
+    updatePresence();
+
+    // Heartbeat every 30 seconds
+    const interval = setInterval(updatePresence, 30000);
+
+    // Cleanup presence on unmount
+    const cleanup = async () => {
       try {
-        const query = movieId ? `?movieId=${movieId}` : '';
-        const res = await fetch(`/api/live/count${query}`);
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        const data = await res.json();
-        setCount(data.count);
+        await deleteDoc(presenceDocRef);
       } catch (err) {
-        console.warn('Live Count fetch failed', err);
+        console.warn('Error cleaning up presence:', err);
       }
     };
 
-    sendHeartbeat();
-    fetchCount();
+    // Real-time listener for the count
+    // Note: Counting in logic for real-time vibe
+    // For many users, this query might be expensive. 
+    // In a real app, you'd use a cloud function to aggregate counts.
+    // For this context, we'll listen to the collection.
+    const twoMinutesAgo = new Timestamp(Math.floor(Date.now() / 1000) - 120, 0);
+    const q = query(
+      collection(db, 'active_viewers'), 
+      where('movieId', '==', movieId || 'global'),
+      where('lastSeen', '>=', twoMinutesAgo)
+    );
 
-    const heartbeatInterval = setInterval(sendHeartbeat, 60000);
-    const countInterval = setInterval(fetchCount, 30000);
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      // Filter out stale docs (Firestore doesn't have a built-in TTL for snapshots based on sliding window easily without cloud functions)
+      // But firestore query is already filtering by 'lastSeen'.
+      setCount(snapshot.size || 1);
+    }, (err) => {
+      console.warn('Error listening to live count:', err);
+    });
+
+    window.addEventListener('beforeunload', cleanup);
 
     return () => {
-      clearInterval(heartbeatInterval);
-      clearInterval(countInterval);
+      clearInterval(interval);
+      unsubscribe();
+      cleanup();
+      window.removeEventListener('beforeunload', cleanup);
     };
   }, [sessionId, movieId]);
 

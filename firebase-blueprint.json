@@ -80,6 +80,14 @@
     "/watch_history/{historyId}": {
       "schema": "WatchHistory",
       "description": "User watch history records"
+    },
+    "/active_viewers/{sessionId}": {
+      "schema": "object",
+      "description": "Real-time presence of viewers"
+    },
+    "/movie_stats/{movieId}": {
+      "schema": "object",
+      "description": "Aggregated movie statistics like views"
     }
   }
 }

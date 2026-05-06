@@ -2,7 +2,8 @@ import { Search, Bell, User, Menu, LogOut, LayoutDashboard, History } from 'luci
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../lib/AuthContext';
-import { signInWithGoogle, logout } from '../lib/firebase';
+import { logout } from '../lib/firebase';
+import AuthModal from './AuthModal';
 
 interface NavbarProps {
   onOpenDashboard: () => void;
@@ -13,6 +14,7 @@ interface NavbarProps {
 export default function Navbar({ onOpenDashboard, onOpenProModal, onOpenProfile }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const { user, loading, isAdmin, isPro } = useAuth();
 
   useEffect(() => {
@@ -94,13 +96,15 @@ export default function Navbar({ onOpenDashboard, onOpenProModal, onOpenProfile 
               </div>
             ) : (
               <button 
-                onClick={signInWithGoogle}
+                onClick={() => setShowAuthModal(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-white text-black text-xs font-black rounded-full hover:bg-zinc-200 transition-colors"
                 dir="rtl"
               >
                 چوونە ژوورەوە
               </button>
             )}
+
+            <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
 
             <AnimatePresence>
               {showUserMenu && user && (

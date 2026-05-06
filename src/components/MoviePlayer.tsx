@@ -4,8 +4,9 @@ import { ArrowRight, Play, Star, Eye, BookOpen, Crown, Lock } from 'lucide-react
 import { Movie } from '../types';
 import { MOVIES } from '../constants';
 import { useAuth } from '../lib/AuthContext';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, doc, onSnapshot, setDoc, increment, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { handleFirestoreError, OperationType } from '../lib/firestoreUtils';
 
 interface MoviePlayerProps {
   movie: Movie;
@@ -49,47 +50,62 @@ export default function MoviePlayer({ movie, onClose }: MoviePlayerProps) {
       }
     };
 
-    const fetchOrIncrementViews = async () => {
+    const handleViews = async () => {
+      const statsRef = doc(db, 'movie_stats', movie.id);
+      
+      // Setup real-time listener for views
+      const unsubscribe = onSnapshot(statsRef, (doc) => {
+        if (doc.exists()) {
+          setViews(doc.data().views || 0);
+        } else {
+          setViews(0);
+        }
+      });
+
+      // Increment view count if not seen in this session
       const storageKey = `viewed_${movie.id}`;
       const hasViewedInSession = sessionStorage.getItem(storageKey);
 
-      try {
-        if (!hasViewedInSession) {
-          // Increment views and mark as viewed in session
-          const response = await fetch(`/api/views/${movie.id}/increment`, { method: 'POST' });
-          const data = await response.json();
-          if (data.views !== undefined) {
-            setViews(data.views);
-            sessionStorage.setItem(storageKey, 'true');
-          }
-        } else {
-          // Just fetch the current view count
-          const response = await fetch(`/api/views/${movie.id}`);
-          const data = await response.json();
-          if (data.views !== undefined) {
-            setViews(data.views);
-          }
+      if (!hasViewedInSession) {
+        try {
+          // Check if document exists before updating, or use set with merge
+          await setDoc(statsRef, {
+            views: increment(1),
+            lastViewedAt: serverTimestamp()
+          }, { merge: true });
+          sessionStorage.setItem(storageKey, 'true');
+        } catch (error) {
+          console.error("Error incrementing views:", error);
         }
-      } catch (error) {
-        console.error("Error handling views:", error);
       }
+
+      return unsubscribe;
     };
 
     const fetchSimilarViews = async () => {
       const similarMovies = MOVIES.filter(m => m.id !== movie.id).slice(0, 6);
-      const ids = similarMovies.map(m => m.id).join(',');
-      try {
-        const response = await fetch(`/api/bulk-views?ids=${ids}`);
-        const data = await response.json();
-        setSimilarViews(data);
-      } catch (error) {
-        console.error("Error fetching similar views:", error);
-      }
+      
+      // We can't easily listen to many separate docs efficiently without batching or cloud functions
+      // For now, we'll just fetch them once or listen to a few
+      const unsubscribes = similarMovies.map(m => {
+        return onSnapshot(doc(db, 'movie_stats', m.id), (doc) => {
+          if (doc.exists()) {
+            setSimilarViews(prev => ({ ...prev, [m.id]: doc.data().views || 0 }));
+          }
+        });
+      });
+
+      return () => unsubscribes.forEach(un => un());
     };
 
-    fetchOrIncrementViews();
-    fetchSimilarViews();
+    const unsubViewsPromise = handleViews();
+    const unsubSimilarViewsPromise = fetchSimilarViews();
     recordWatchHistory();
+
+    return () => {
+      unsubViewsPromise.then(un => un && un());
+      unsubSimilarViewsPromise.then(un => un && un());
+    };
   }, [movie.id, user?.uid]);
 
   return (
